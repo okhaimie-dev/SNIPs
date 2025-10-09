@@ -177,31 +177,92 @@ function App() {
             <CardHeader>
               <CardTitle className="text-lg">Quick Start</CardTitle>
               <CardDescription>
-                Try these example addresses or generate test vectors
+                Try these example addresses or generate random test vectors
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setAddress(
-                      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-                    )
-                  }
-                  className="justify-start"
-                >
-                  <span className="monospace text-xs truncate">
-                    0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7
-                  </span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleGenerateTestVector("legacy")}
-                >
-                  <Zap className="h-3 w-3 mr-2" />
-                  Generate Legacy Test
-                </Button>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">
+                    Example Addresses:
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setAddress(
+                          "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                        )
+                      }
+                      className="justify-start h-auto p-2"
+                    >
+                      <div className="text-left">
+                        <div className="text-xs text-muted-foreground">
+                          Legacy Address
+                        </div>
+                        <div className="monospace text-xs font-medium break-all">
+                          0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7
+                        </div>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddress("invalid-address-example")}
+                      className="justify-start h-auto p-2"
+                    >
+                      <div className="text-left">
+                        <div className="text-xs text-muted-foreground">
+                          Invalid Example
+                        </div>
+                        <div className="monospace text-xs font-medium">
+                          invalid-address-example
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-2">
+                    Generate Test Vectors:
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateTestVector("legacy")}
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      Legacy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateTestVector("public")}
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      Public
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateTestVector("shielded")}
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      Shielded
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerateTestVector("unified")}
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      Unified
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
