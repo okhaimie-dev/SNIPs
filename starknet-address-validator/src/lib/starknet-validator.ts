@@ -414,13 +414,23 @@ export function generateTestVector(format: AddressFormat): string {
 
     case "public":
       try {
-        // Generate random 32-byte address data (< felt252 max)
-        const addressData = new Uint8Array(32);
-        for (let i = 0; i < 32; i++) {
-          addressData[i] = randomByte();
-        }
-        // Ensure it's under felt252 limit by setting first byte appropriately
-        addressData[0] = addressData[0] & 0x0f; // Keep it small
+        // Generate random 32-byte address data that's guaranteed < felt252 max
+        let addressData: Uint8Array;
+        let bigIntValue: bigint;
+
+        do {
+          addressData = new Uint8Array(32);
+          for (let i = 0; i < 32; i++) {
+            addressData[i] = randomByte();
+          }
+          // Convert to BigInt to check felt252 constraint
+          bigIntValue = BigInt(
+            "0x" +
+              Array.from(addressData, (b) =>
+                b.toString(16).padStart(2, "0"),
+              ).join(""),
+          );
+        } while (bigIntValue > FELT252_MAX);
 
         // Create payload: version (1) + address data
         const payload = new Uint8Array([1, ...addressData]);
@@ -434,13 +444,23 @@ export function generateTestVector(format: AddressFormat): string {
 
     case "shielded":
       try {
-        // Generate random 32-byte address data (< felt252 max)
-        const addressData = new Uint8Array(32);
-        for (let i = 0; i < 32; i++) {
-          addressData[i] = randomByte();
-        }
-        // Ensure it's under felt252 limit by setting first byte appropriately
-        addressData[0] = addressData[0] & 0x0f; // Keep it small
+        // Generate random 32-byte address data that's guaranteed < felt252 max
+        let addressData: Uint8Array;
+        let bigIntValue: bigint;
+
+        do {
+          addressData = new Uint8Array(32);
+          for (let i = 0; i < 32; i++) {
+            addressData[i] = randomByte();
+          }
+          // Convert to BigInt to check felt252 constraint
+          bigIntValue = BigInt(
+            "0x" +
+              Array.from(addressData, (b) =>
+                b.toString(16).padStart(2, "0"),
+              ).join(""),
+          );
+        } while (bigIntValue > FELT252_MAX);
 
         // Create payload: version (1) + address data
         const payload = new Uint8Array([1, ...addressData]);
@@ -455,12 +475,22 @@ export function generateTestVector(format: AddressFormat): string {
     case "unified":
       try {
         // Generate a simple unified address with one public receiver
-        const receiverData = new Uint8Array(32);
-        for (let i = 0; i < 32; i++) {
-          receiverData[i] = randomByte();
-        }
-        // Ensure receiver data is under felt252 limit
-        receiverData[0] = receiverData[0] & 0x0f;
+        let receiverData: Uint8Array;
+        let bigIntValue: bigint;
+
+        do {
+          receiverData = new Uint8Array(32);
+          for (let i = 0; i < 32; i++) {
+            receiverData[i] = randomByte();
+          }
+          // Convert to BigInt to check felt252 constraint
+          bigIntValue = BigInt(
+            "0x" +
+              Array.from(receiverData, (b) =>
+                b.toString(16).padStart(2, "0"),
+              ).join(""),
+          );
+        } while (bigIntValue > FELT252_MAX);
 
         // Create TLV: Type (0x00 = public key) + Length (32) + Value
         const tlvData = new Uint8Array([

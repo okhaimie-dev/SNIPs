@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starknet Address Generation Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #007acc;
+        }
+        .success {
+            border-left-color: #28a745;
+            background-color: #f8fff9;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background-color: #fff8f8;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .success-rate {
+            color: #28a745;
+        }
+        .error-rate {
+            color: #dc3545;
+        }
+        .address-output {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            word-break: break-all;
+            margin: 5px 0;
+        }
+        .log {
+            height: 200px;
+            overflow-y: auto;
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Starknet Address Generation Test</h1>
+    <p>This utility tests the fixed felt252 constraint validation for SNIP-42 address generation.</p>
+
+    <div class="container">
+        <h2>📊 Test Statistics</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number success-rate" id="successCount">0</div>
+                <div>Successful</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number error-rate" id="errorCount">0</div>
+                <div>Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div>Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number success-rate" id="successRate">100%</div>
+                <div>Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="testSingleGeneration('public')">Test Public (1x)</button>
+        <button onclick="testSingleGeneration('shielded')">Test Shielded (1x)</button>
+        <button onclick="testSingleGeneration('unified')">Test Unified (1x)</button>
+        <button onclick="testBatchGeneration('public', 50)">Test Public (50x)</button>
+        <button onclick="testBatchGeneration('shielded', 50)">Test Shielded (50x)</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="container">
+        <h2>🔍 Test Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="container">
+        <h2>📝 Console Log</h2>
+        <div class="log" id="consoleLog"></div>
+    </div>
+
+    <script src="https://unpkg.com/bech32@2.0.0/dist/index.js"></script>
+    <script>
+        // Constants
+        const STARKNET_HRPS = {
+            public: 'strk',
+            shielded: 'strkx',
+            unified: 'strku'
+        };
+
+        const TLV_TYPES = {
+            PUBLIC_KEY: 0x00,
+            SHIELDED: 0x01
+        };
+
+        const FELT252_MAX = 2n ** 251n - 1n;
+
+        // Statistics
+        let stats = {
+            success: 0,
+            error: 0,
+            total: 0
+        };
+
+        // Utility functions
+        function randomByte() {
+            return Math.floor(Math.random() * 256);
+        }
+
+        function logToConsole(message, isError = false) {
+            const consoleLog = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = isError ? '#ff4444' : '#00ff00';
+            consoleLog.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('successCount').textContent = stats.success;
+            document.getElementById('errorCount').textContent = stats.error;
+            document.getElementById('totalCount').textContent = stats.total;
+            const rate = stats.total > 0 ? ((stats.success / stats.total) * 100).toFixed(1) : 100;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        function validateFelt252(bytes) {
+            const bigIntValue = BigInt('0x' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join(''));
+            return bigIntValue <= FELT252_MAX;
+        }
+
+        function generateTestAddress(format) {
+            try {
+                let addressData;
+                let bigIntValue;
+
+                // Generate address data that's guaranteed < felt252 max
+                do {
+                    addressData = new Uint8Array(32);
+                    for (let i = 0; i < 32; i++) {
+                        addressData[i] = randomByte();
+                    }
+                    bigIntValue = BigInt('0x' + Array.from(addressData, b => b.toString(16).padStart(2, '0')).join(''));
+                } while (bigIntValue > FELT252_MAX);
+
+                switch (format) {
+                    case 'public':
+                        const publicPayload = new Uint8Array([1, ...addressData]);
+                        const publicWords = bech32.bech32.toWords(publicPayload);
+                        return bech32.bech32.encode(STARKNET_HRPS.public, publicWords);
+
+                    case 'shielded':
+                        const shieldedPayload = new Uint8Array([1, ...addressData]);
+                        const shieldedWords = bech32.bech32.toWords(shieldedPayload);
+                        return bech32.bech32.encode(STARKNET_HRPS.shielded, shieldedWords);
+
+                    case 'unified':
+                        const tlvData = new Uint8Array([
+                            TLV_TYPES.PUBLIC_KEY,
+                            32,
+                            ...addressData
+                        ]);
+                        const unifiedPayload = new Uint8Array([1, ...tlvData]);
+                        const unifiedWords = bech32.bech32.toWords(unifiedPayload);
+                        return bech32.bech32.encode(STARKNET_HRPS.unified, unifiedWords);
+
+                    default:
+                        throw new Error(`Unknown format: ${format}`);
+                }
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function validateGeneratedAddress(address, format) {
+            try {
+                // Basic format check
+                const expectedPrefix = format === 'public' ? 'strk1' :
+                                     format === 'shielded' ? 'strkx1' : 'strku1';
+
+                if (!address.startsWith(expectedPrefix)) {
+                    throw new Error(`Address doesn't start with expected prefix ${expectedPrefix}`);
+                }
+
+                // Decode and validate
+                const decoded = bech32.bech32.decode(address);
+                const payload = bech32.bech32.fromWords(decoded.words);
+
+                if (payload.length === 0) {
+                    throw new Error('Empty payload');
+                }
+
+                // Check version
+                const version = payload[0];
+                if (version !== 1) {
+                    throw new Error(`Invalid version: ${version}`);
+                }
+
+                // Extract and validate address data
+                const addressData = payload.slice(1);
+
+                if (format === 'unified') {
+                    // For unified, skip TLV parsing and just check the receiver data
+                    if (addressData.length < 34) { // type + length + 32 bytes minimum
+                        throw new Error('Invalid unified address payload length');
+                    }
+                    const receiverData = addressData.slice(2, 34); // Skip type and length bytes
+                    if (!validateFelt252(receiverData)) {
+                        throw new Error('Receiver data exceeds felt252 maximum');
+                    }
+                } else {
+                    // For public/shielded, validate the 32-byte address
+                    if (addressData.length !== 32) {
+                        throw new Error(`Invalid payload length: ${addressData.length} bytes`);
+                    }
+                    if (!validateFelt252(addressData)) {
+                        throw new Error('Address exceeds felt252 maximum');
+                    }
+                }
+
+                return true;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function testSingleGeneration(format) {
+            try {
+                logToConsole(`Testing ${format} address generation...`);
+
+                const address = generateTestAddress(format);
+                logToConsole(`Generated: ${address}`);
+
+                validateGeneratedAddress(address, format);
+                logToConsole(`✅ Validation passed for ${format} address`, false);
+
+                // Add to results
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'test-section success';
+                resultDiv.innerHTML = `
+                    <h4>✅ ${format.toUpperCase()} - SUCCESS</h4>
+                    <div class="address-output">${address}</div>
+                    <small>Generated at ${new Date().toLocaleTimeString()}</small>
+                `;
+                document.getElementById('results').appendChild(resultDiv);
+
+                stats.success++;
+                stats.total++;
+
+            } catch (error) {
+                logToConsole(`❌ Error testing ${format}: ${error.message}`, true);
+
+                // Add error to results
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'test-section error';
+                resultDiv.innerHTML = `
+                    <h4>❌ ${format.toUpperCase()} - FAILED</h4>
+                    <div style="color: red;">Error: ${error.message}</div>
+                    <small>Failed at ${new Date().toLocaleTimeString()}</small>
+                `;
+                document.getElementById('results').appendChild(resultDiv);
+
+                stats.error++;
+                stats.total++;
+            }
+
+            updateStats();
+        }
+
+        function testBatchGeneration(format, count) {
+            logToConsole(`Starting batch test: ${count}x ${format} addresses...`);
+
+            let batchSuccess = 0;
+            let batchErrors = [];
+
+            for (let i = 0; i < count; i++) {
+                try {
+                    const address = generateTestAddress(format);
+                    validateGeneratedAddress(address, format);
+                    batchSuccess++;
+                    stats.success++;
+                } catch (error) {
+                    batchErrors.push(error.message);
+                    stats.error++;
+                }
+                stats.total++;
+            }
+
+            // Add batch results
+            const resultDiv = document.createElement('div');
+            const isSuccess = batchErrors.length === 0;
+            resultDiv.className = `test-section ${isSuccess ? 'success' : 'error'}`;
+
+            resultDiv.innerHTML = `
+                <h4>${isSuccess ? '✅' : '❌'} BATCH ${format.toUpperCase()} (${count}x)</h4>
+                <p><strong>Success:</strong> ${batchSuccess}/${count} (${((batchSuccess/count)*100).toFixed(1)}%)</p>
+                ${batchErrors.length > 0 ? `
+                    <p><strong>Errors:</strong></p>
+                    <ul>${batchErrors.slice(0, 5).map(err => `<li>${err}</li>`).join('')}
+                    ${batchErrors.length > 5 ? `<li>... and ${batchErrors.length - 5} more</li>` : ''}</ul>
+                ` : ''}
+                <small>Completed at ${new Date().toLocaleTimeString()}</small>
+            `;
+            document.getElementById('results').appendChild(resultDiv);
+
+            logToConsole(`Batch test completed: ${batchSuccess}/${count} successful`, batchErrors.length === 0);
+            updateStats();
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('consoleLog').innerHTML = '';
+            stats = { success: 0, error: 0, total: 0 };
+            updateStats();
+            logToConsole('Test results cleared');
+        }
+
+        // Initialize
+        logToConsole('Test utility loaded. Click buttons to start testing.');
+        updateStats();
+    </script>
+</body>
+</html>

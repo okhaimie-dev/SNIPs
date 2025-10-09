@@ -119,7 +119,8 @@ function App() {
           <CardHeader>
             <CardTitle className="text-lg">Supported Address Formats</CardTitle>
             <CardDescription>
-              This tool validates all current Starknet address formats
+              This tool validates all current and proposed Starknet address
+              formats
             </CardDescription>
           </CardHeader>
           <CardContent>
