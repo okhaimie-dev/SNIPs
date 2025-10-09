@@ -1,6 +1,6 @@
 # Starknet Address Validator
 
-A web-based tool for validating and parsing Starknet addresses across multiple formats, including legacy hex addresses, SNIP-42 Bech32m addresses, and SNIP-43 unified addresses.
+A comprehensive educational tool and validator for Starknet addresses across multiple formats, including legacy hex addresses, SNIP-42 Bech32m addresses, and SNIP-43 unified addresses. Learn about address formats, validation processes, and SNIP specifications through interactive examples and step-by-step analysis.
 
 ![Starknet Address Validator](https://img.shields.io/badge/Starknet-Address%20Validator-orange)
 ![React](https://img.shields.io/badge/React-18+-blue)
@@ -9,24 +9,33 @@ A web-based tool for validating and parsing Starknet addresses across multiple f
 
 ## 🌟 Features
 
-### Address Format Support
-- **Legacy Addresses** (`0x...`) - Traditional hex format with felt252 validation
-- **SNIP-42 Public Addresses** (`strk1...`) - Bech32m encoded public addresses
-- **SNIP-42 Shielded Addresses** (`strkx1...`) - Bech32m encoded shielded addresses
-- **SNIP-43 Unified Addresses** (`strku1...`) - Multi-receiver unified addresses with TLV parsing
+### 🎓 Educational Content
+- **Interactive Learning Modules** - Beginner to advanced level explanations
+- **Address Format Breakdown** - Visual structure analysis with examples
+- **SNIP-42/43 Deep Dives** - Comprehensive coverage of new address standards
+- **Bech32m Encoding Tutorial** - Step-by-step encoding process explanation
+- **TLV Structure Analysis** - Detailed unified address parsing education
+- **Privacy Concepts** - Understanding public vs. shielded vs. unified addresses
 
-### Core Functionality
+### 🔍 Step-by-Step Validation
+- **Process Visualization** - See every validation step in real-time
+- **Educational Timing** - Deliberate pacing to understand each check
+- **Error Analysis** - Learn why addresses fail at specific steps
+- **Technical Insights** - Understand felt252 constraints and Bech32m checksums
+- **Interactive Examples** - Try validation with guided explanations
+
+### 🛠 Address Validation Tools
 - **Real-time Validation** - Instant feedback as you type
+- **Multi-format Support** - Legacy, SNIP-42, and SNIP-43 addresses
 - **Detailed Parsing** - Shows all components of valid addresses
 - **Error Reporting** - Clear, specific error messages for invalid addresses
-- **Copy to Clipboard** - Easy copying of addresses and parsed data
-- **JSON Export** - Export validation results as structured JSON
-- **Test Vector Generation** - Generate sample addresses for testing
+- **Test Vector Generation** - Generate valid sample addresses for testing
+- **Copy & Export** - Easy copying of addresses and JSON export
 
-### User Experience
+### 💻 User Experience
+- **Three Learning Modes** - Validator, Educational Guide, Step-by-Step Analysis
 - **Mobile Responsive** - Works seamlessly on desktop and mobile
 - **Accessibility** - WCAG 2.1 AA compliant interface
-- **Dark/Light Mode** - Automatic theme detection
 - **No Data Storage** - Fully client-side, privacy-focused
 - **Offline Capable** - Works without internet connection
 
@@ -55,7 +64,10 @@ A web-based tool for validating and parsing Starknet addresses across multiple f
    ```
 
 4. **Open in browser**
-   Navigate to `http://localhost:5173`
+   Navigate to `http://localhost:5173` and explore the three main sections:
+   - **Validator**: Quick address validation and testing
+   - **Learn**: Comprehensive educational content
+   - **Step-by-Step**: Interactive validation process analysis
 
 ### Build for Production
 
@@ -76,21 +88,44 @@ The built files will be in the `dist` directory, ready for deployment to any sta
 
 ## 📚 Usage Guide
 
-### Basic Validation
+### 🎓 Learning Mode (Recommended for New Users)
 
-1. **Enter an address** in the input field
-2. **View results** instantly - the tool shows:
-   - ✅ Valid or ❌ Invalid status
-   - Address format type (legacy, public, shielded, unified)
-   - Detailed error messages for invalid addresses
-   - Parsed components for valid addresses
+1. **Click the "Learn" tab** to access educational content
+2. **Select your level**: Beginner, Intermediate, Advanced, or All
+3. **Explore interactive sections**:
+   - What are Starknet Addresses?
+   - Legacy vs Modern Address Formats
+   - Understanding Bech32m Encoding
+   - SNIP-43 Unified Addresses Deep Dive
+   - Validation Process Explained
+   - Privacy and Address Types
+4. **Try interactive examples** directly from educational content
+
+### 👁 Step-by-Step Analysis
+
+1. **Click the "Step-by-Step" tab**
+2. **Enter any address** to analyze
+3. **Watch the validation process** unfold in real-time:
+   - Format Detection
+   - Structure Validation
+   - Checksum Verification (for Bech32m)
+   - Felt252 Constraint Check
+   - Format-Specific Validation
+4. **Learn from failures** - see exactly where and why addresses fail
+
+### ⚡ Quick Validation
+
+1. **Use the "Validator" tab** for fast validation
+2. **Enter addresses** for instant results
+3. **Generate test vectors** with the lightning bolt buttons
+4. **Copy results** in various formats (address, JSON, components)
 
 ### Advanced Features
 
-- **Copy Functions**: Click copy buttons to copy addresses, components, or full JSON
-- **Technical Details**: Expand sections to see raw payload data and byte information
-- **Test Vectors**: Use the "Generate" buttons to create sample addresses
-- **Format Examples**: Try the quick-start examples for each address type
+- **Educational Tooltips**: Hover over terms for quick explanations
+- **Interactive Examples**: Click examples in educational content to test them
+- **Comprehensive Parsing**: View all address components and metadata
+- **Error Learning**: Understand why addresses fail validation
 
 ### Supported Address Examples
 
@@ -229,6 +264,15 @@ Automatically detects address format based on prefix:
 - [ ] **Browser Extension** - Validate addresses on any webpage
 - [ ] **Mobile App** - React Native mobile application
 
+## 🎯 Educational Impact
+
+This tool has transformed from a simple validator into a comprehensive educational platform that:
+
+- **Accelerates Learning**: Interactive examples make complex concepts accessible
+- **Supports SNIP Adoption**: Practical understanding drives implementation confidence
+- **Builds Community**: Shared reference for discussing address format evolution
+- **Enables Innovation**: Deep technical understanding enables better tooling and applications
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -239,9 +283,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Bitcoin Developers** - For the proven Bech32 implementation
 - **shadcn/ui** - For the beautiful UI component library
 - **Tailwind CSS** - For the utility-first CSS framework
+- **Educational Design** - Inspired by interactive learning principles
 
 ---
 
-**Built with ❤️ for the Starknet ecosystem**
+**Built with ❤️ for learning and the Starknet ecosystem**
+
+This educational tool bridges the gap between specification and understanding, making advanced cryptographic concepts accessible to developers at all levels. 
 
 For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/starknet-io/SNIPs) or join the [Starknet community discussions](https://community.starknet.io/).
